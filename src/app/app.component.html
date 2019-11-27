@@ -1,0 +1,64 @@
+<div>
+    <h2>Dozvoljena kalorijska vrednost: </h2><input type="number" [(ngModel)]="dozvoljenaKaloricnaVrednost" />
+    <br />
+    <button (click)="generisiRezultat()">Prikazi rezultat</button>
+
+    <hr />
+    <tr>
+        <th>Namirnica:</th>
+        <td><input [(ngModel)]="nazivNoveNamirnice" /></td>
+    </tr>
+    <tr>
+        <th>Kolicina u gramima:</th>
+        <td><input [(ngModel)]="kolicinaNoveNamirnice" /></td>
+    </tr>
+    <tr>
+        <th>Broj kalorija:</th>
+        <td><input [(ngModel)]="brojKalorijaNoveNamirnice" /></td>
+    </tr>
+    <button (click)="dodajNamirnicu({ naziv: nazivNoveNamirnice, kolicina: kolicinaNoveNamirnice, brojKalorija: brojKalorijaNoveNamirnice })">
+        Dodaj namirnicu
+    </button>
+
+    <br />
+    <br />
+
+    <tr>
+        <td><h3>Frizider:&nbsp;&nbsp;</h3></td>
+        <td>{{ukupanBrojKalorija(frizider)}}&nbsp;&nbsp;</td>
+        <td>{{ukupnaKolicina(frizider)}}</td>
+    </tr>
+    <table>
+        <thead>
+            <th>Namirnica</th>
+            <th>Kolicina</th>
+            <th>Broj kalorija</th>
+            <th></th>
+        </thead>
+        <tr *ngFor="let namirnica of frizider; let i = index">
+            <td>{{namirnica.naziv}}</td>
+            <td>{{namirnica.kolicina}}</td>
+            <td>{{namirnica.brojKalorija}}</td>
+            <td><button (click)="ukloniNamirnicu(i)">X</button></td>
+        </tr>
+    </table>
+    <hr />
+    
+    <tr>
+        <td><h3>Rezultat:&nbsp;&nbsp;</h3></td>
+        <td>{{ukupanBrojKalorija(optimalneNamirnice)}}&nbsp;&nbsp;</td>
+        <td>{{ukupnaKolicina(optimalneNamirnice)}}</td>
+    </tr>
+    <table>
+        <thead>
+            <th>Namirnica</th>
+            <th>Kolicina</th>
+            <th>Broj kalorija</th>
+        </thead>
+        <tr *ngFor="let namirnica of optimalneNamirnice; let i = index">
+            <td>{{namirnica.naziv}}</td>
+            <td>{{namirnica.kolicina}}</td>
+            <td>{{namirnica.brojKalorija}}</td>
+        </tr>
+    </table>
+</div>
