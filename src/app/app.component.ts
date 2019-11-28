@@ -11,7 +11,7 @@ export class AppComponent {
   kolicinaNoveNamirnice: number;
   brojKalorijaNoveNamirnice: number;
 
-  dozvoljenaKaloricnaVrednost: number = 2000;
+  dozvoljenaKaloricnaVrednost: number = 1500;
   frizider: Namirnica[] = [
     { naziv: 'Ananas', kolicina: 100, brojKalorija: 95 },
     { naziv: 'Banana', kolicina: 300, brojKalorija: 240 },
@@ -52,9 +52,9 @@ export class AppComponent {
 
   generisiRezultat(): void {
     this.optimalneNamirnice.splice(0);
-    const populacija = new Populacija(100, this.frizider, this.dozvoljenaKaloricnaVrednost);
-    populacija.izracunajFitneseGena();
-    const kriterijum = this.dozvoljenaKaloricnaVrednost - 200;
+    const populacija: Populacija = new Populacija(100, this.frizider, this.dozvoljenaKaloricnaVrednost);
+    populacija.izracunajDobrotuGena();
+    const kriterijum: number = 2000;
     populacija.evolucija(kriterijum);
 
     populacija.geni[0].genotip.forEach((x, i) => {
@@ -77,7 +77,7 @@ class Gen {
 
   genotip: boolean[];
   dobrota: number;
-  generacija: number = 0;
+  generacija: number;
 
   generisiGenotip(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost: number): void {
     this.genotip = Array(namirnice.length).fill(0);
@@ -100,18 +100,18 @@ class Gen {
       this.dobrota = 0;
   }
 
-  kombinacijaGena(verovatnoca: number, drugiGen: Gen): Gen[] {
+  rekombinacija(verovatnoca: number, drugiGen: Gen): Gen[] {
     if (verovatnoca >= Math.random()) {
-      const tackaPreseka = Math.floor(Math.random() * (this.genotip.length - 1));
-      const prviDeoGena1 = this.genotip.slice(0, tackaPreseka);
-      const prviDeoGena2 = drugiGen.genotip.slice(0, tackaPreseka);
-      const drugiDeoGena1 = this.genotip.slice(tackaPreseka);
-      const drugiDeoGena2 = drugiGen.genotip.slice(tackaPreseka);
+      const tackaPrelaska = Math.floor(Math.random() * (this.genotip.length - 1));
+      const prviDeoGenotipa1: boolean[] = this.genotip.slice(0, tackaPrelaska);
+      const prviDeoGenotipa2: boolean[] = drugiGen.genotip.slice(0, tackaPrelaska);
+      const drugiDeoGenotipa1: boolean[] = this.genotip.slice(tackaPrelaska);
+      const drugiDeoGenotipa2: boolean[] = drugiGen.genotip.slice(tackaPrelaska);
 
-      const prviPotomak = new Gen();
-      const drugiPotomak = new Gen();
-      prviPotomak.genotip = prviDeoGena1.concat(drugiDeoGena2);
-      drugiPotomak.genotip = prviDeoGena2.concat(drugiDeoGena1);
+      const prviPotomak: Gen = new Gen();
+      const drugiPotomak: Gen = new Gen();
+      prviPotomak.genotip = prviDeoGenotipa1.concat(drugiDeoGenotipa2);
+      drugiPotomak.genotip = prviDeoGenotipa2.concat(drugiDeoGenotipa1);
       return [prviPotomak, drugiPotomak];
     }
     return [this, drugiGen];
@@ -121,6 +121,13 @@ class Gen {
     for (let i = 0; i < this.genotip.length; i++)
       if (verovatnoca >= Math.random())
         this.genotip[i] = !this.genotip[i];
+  }
+
+  maksimum(): boolean {
+    for (let i = 0; i < this.genotip.length; i++)
+      if (!this.genotip[i])
+        return false;
+    return true;
   }
 }
 
@@ -140,7 +147,7 @@ class Populacija {
     this.geni.sort((x, y) => y.dobrota - x.dobrota);
   }
 
-  izracunajFitneseGena(): void {
+  izracunajDobrotuGena(): void {
       this.geni.forEach(x => x.izracunajDobrotu(this.namirnice, this.dozvoljenaKaloricnaVrednost));
   }
 
@@ -150,19 +157,20 @@ class Populacija {
   }
 
   evolucija(kriterijum: number): void {
-    while (this.geni[0].dobrota < kriterijum && this.generacija < 5000) {
+    while (this.geni[0].dobrota < kriterijum && this.generacija < 1000 && !this.geni[0].maksimum()) {
       this.generacija++;
 
       const roditelji: Gen[] = this.odaberiRoditelje();
-      const potomci: Gen[] = roditelji[0].kombinacijaGena(Gen.verovatnocaKombinacije, roditelji[1]);
+      const potomci: Gen[] = roditelji[0].rekombinacija(Gen.verovatnocaKombinacije, roditelji[1]);
 
       this.geni.splice(this.geni.length - 2, 2, ...potomci);
       potomci[0].generacija = potomci[1].generacija = this.generacija;
 
       this.geni.forEach(x => x.mutacija(Gen.verovatnocaMutacije));
 
-      this.izracunajFitneseGena();
+      this.izracunajDobrotuGena();
       this.sortirajGene();
+      console.log(this.geni[0]);
     }
   }
 }
