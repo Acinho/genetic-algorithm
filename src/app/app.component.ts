@@ -52,11 +52,11 @@ export class AppComponent {
 
   generisiRezultat(): void {
     this.optimalneNamirnice.splice(0);
+    console.clear();
+
     const populacija: Populacija = new Populacija(100, this.frizider, this.dozvoljenaKaloricnaVrednost);
     populacija.izracunajDobrotuGena();
-    const kriterijum: number = 2000;
-    console.clear();
-    populacija.evolucija(kriterijum);
+    populacija.evolucija(1500);
 
     populacija.geni[0].genotip.forEach((x, i) => {
       if (x)
@@ -79,6 +79,10 @@ class Gen {
   genotip: boolean[];
   dobrota: number;
   generacija: number;
+
+  constructor() {
+    this.generacija = 0;
+  }
 
   generisiGenotip(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost: number): void {
     this.genotip = new Array(namirnice.length);
@@ -150,7 +154,7 @@ class Populacija {
   }
 
   izracunajDobrotuGena(): void {
-      this.geni.forEach(x => x.izracunajDobrotu(this.namirnice, this.dozvoljenaKaloricnaVrednost));
+    this.geni.forEach(x => x.izracunajDobrotu(this.namirnice, this.dozvoljenaKaloricnaVrednost));
   }
 
   odaberiRoditelje(): Gen[] {
@@ -165,8 +169,9 @@ class Populacija {
       const roditelji: Gen[] = this.odaberiRoditelje();
       const potomci: Gen[] = roditelji[0].rekombinacija(Gen.verovatnocaKombinacije, roditelji[1]);
 
+      potomci[0].generacija = this.generacija;
+      potomci[1].generacija = this.generacija;
       this.geni.splice(this.geni.length - 2, 2, ...potomci);
-      potomci[0].generacija = potomci[1].generacija = this.generacija;
 
       this.geni.forEach(x => x.mutacija(Gen.verovatnocaMutacije));
 
