@@ -58,7 +58,7 @@ export class AppComponent {
     populacija.evolucija(kriterijum);
 
     populacija.geni[0].genotip.forEach((x, i) => {
-      if (x == 1)
+      if (x)
         this.optimalneNamirnice.push(this.frizider[i]);
     });
   }
@@ -75,8 +75,8 @@ class Gen {
   static readonly verovatnocaKombinacije = 0.8;
   static readonly verovatnocaMutacije = 0.2;
 
-  genotip: (0 | 1)[];
-  fitnes: number;
+  genotip: boolean[];
+  dobrota: number;
   generacija: number = 0;
 
   generisiGenotip(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost: number): void {
@@ -84,20 +84,20 @@ class Gen {
     let ukupnoKalorija: number = 0;
     while (ukupnoKalorija < dozvoljenaKaloricnaVrednost) {
       const indeks: number = Math.floor(Math.random() * (namirnice.length - 1));
-      if (this.genotip[indeks] != 1) {
+      if (!this.genotip[indeks]) {
         ukupnoKalorija += namirnice[indeks].brojKalorija;
         if (ukupnoKalorija >= dozvoljenaKaloricnaVrednost)
           break;
-        this.genotip[indeks] = 1;
+        this.genotip[indeks] = true;
       }
     }
   }
 
-  izracunajFitnes(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost): void {
-    const izabraneNamirnice: Namirnica[] = namirnice.filter((x, i) => this.genotip[i] == 1);
-    this.fitnes = izabraneNamirnice.length ? izabraneNamirnice.map(x => x.kolicina).reduce((x, y) => x + y) : 0;
+  izracunajDobrotu(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost): void {
+    const izabraneNamirnice: Namirnica[] = namirnice.filter((x, i) => this.genotip[i]);
+    this.dobrota = izabraneNamirnice.length ? izabraneNamirnice.map(x => x.kolicina).reduce((x, y) => x + y) : 0;
     if (!izabraneNamirnice.length || izabraneNamirnice.map(x => x.brojKalorija).reduce((x, y) => x + y) > dozvoljenaKaloricnaVrednost)
-      this.fitnes = 0;
+      this.dobrota = 0;
   }
 
   kombinacijaGena(verovatnoca: number, drugiGen: Gen): Gen[] {
@@ -120,7 +120,7 @@ class Gen {
   mutacija(verovatnoca: number): void {
     for (let i = 0; i < this.genotip.length; i++)
       if (verovatnoca >= Math.random())
-        this.genotip[i] = this.genotip[i] == 1 ? 0 : 1;
+        this.genotip[i] = !this.genotip[i];
   }
 }
 
@@ -137,11 +137,11 @@ class Populacija {
   }
 
   sortirajGene(): void {
-    this.geni.sort((x, y) => y.fitnes - x.fitnes);
+    this.geni.sort((x, y) => y.dobrota - x.dobrota);
   }
 
   izracunajFitneseGena(): void {
-      this.geni.forEach(x => x.izracunajFitnes(this.namirnice, this.dozvoljenaKaloricnaVrednost));
+      this.geni.forEach(x => x.izracunajDobrotu(this.namirnice, this.dozvoljenaKaloricnaVrednost));
   }
 
   odaberiRoditelje(): Gen[] {
@@ -150,7 +150,7 @@ class Populacija {
   }
 
   evolucija(kriterijum: number): void {
-    while (this.geni[0].fitnes < kriterijum && this.generacija < 500) {
+    while (this.geni[0].dobrota < kriterijum && this.generacija < 5000) {
       this.generacija++;
 
       const roditelji: Gen[] = this.odaberiRoditelje();
