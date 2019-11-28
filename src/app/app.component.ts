@@ -19,7 +19,7 @@ export class AppComponent {
     { naziv: 'Lubenica', kolicina: 200, brojKalorija: 40 },
     { naziv: 'Hleb', kolicina: 300, brojKalorija: 750 },
     { naziv: 'Piletina', kolicina: 300, brojKalorija: 360 },
-    { naziv: 'Mleveno meso', kolicina: 300, brojKalorija: 900 },
+    { naziv: 'Govedina', kolicina: 300, brojKalorija: 900 },
     { naziv: 'Musaka', kolicina: 500, brojKalorija: 750 },
     { naziv: 'Kobasica', kolicina: 200, brojKalorija: 700 },
     { naziv: 'Svinjetina', kolicina: 300, brojKalorija: 900 },
