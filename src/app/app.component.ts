@@ -55,6 +55,7 @@ export class AppComponent {
     const populacija: Populacija = new Populacija(100, this.frizider, this.dozvoljenaKaloricnaVrednost);
     populacija.izracunajDobrotuGena();
     const kriterijum: number = 2000;
+    console.clear();
     populacija.evolucija(kriterijum);
 
     populacija.geni[0].genotip.forEach((x, i) => {
@@ -80,7 +81,8 @@ class Gen {
   generacija: number;
 
   generisiGenotip(namirnice: Namirnica[], dozvoljenaKaloricnaVrednost: number): void {
-    this.genotip = Array(namirnice.length).fill(0);
+    this.genotip = new Array(namirnice.length);
+    this.genotip.fill(false);
     let ukupnoKalorija: number = 0;
     while (ukupnoKalorija < dozvoljenaKaloricnaVrednost) {
       const indeks: number = Math.floor(Math.random() * (namirnice.length - 1));
